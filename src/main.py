@@ -1,6 +1,6 @@
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
-
+import re
 
 def text_node_to_html_node(text_node):
     match text_node.text_type:
@@ -45,17 +45,76 @@ def split_single_node(text, delimiter, text_type):
     result.extend(split_single_node(remaining_text, delimiter, text_type))
     
     return result
+
+def split_nodes_image(old_nodes):
+    split_nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            split_nodes.append(node)
+            continue
+        images = extract_markdown_images(node.text)
+        if not images:
+            split_nodes.append(node)
+            continue
+
+        current_text = node.text
+        for alt, url in images:
+            markdown_img = f"![{alt}]({url})"
+            parts = current_text.split(markdown_img, 1)
+
+            if parts[0]:
+                split_nodes.append(TextNode(parts[0], TextType.TEXT))
+            split_nodes.append(TextNode(alt, TextType.IMAGE, url))
+
+            current_text = parts[1] if len(parts) > 1 else ""
+
+        if current_text:
+            split_nodes.append(TextNode(current_text, TextType.TEXT))
     
+    return split_nodes
+
+    
+def split_nodes_link(old_nodes):
+    split_nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            split_nodes.append(node)
+            continue
+        links = extract_markdown_links(node.text)
+        if not links:
+            split_nodes.append(node)
+            continue
+        
+        current_text = node.text
+        for link_text, url in links:
+            markdown_link = f"[{link_text}]({url})"
+            parts = current_text.split(markdown_link, 1)
+            if parts[0]:
+                split_nodes.append(TextNode(parts[0], TextType.TEXT))
+            split_nodes.append(TextNode(link_text, TextType.LINK, url))
+
+            current_text = parts[1] if len(parts) > 1 else ""
+        
+        if current_text:
+            split_nodes.append(TextNode(current_text, TextType.TEXT))
+    
+    return split_nodes
+
+
+
+def extract_markdown_images(text):
+    matches = re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+    return matches
+
+def extract_markdown_links(text):
+    matches = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+    return matches
 
 
             
 
 def main():
-    node = TextNode("This is some sample text", TextType.LINK, "https://www.boot.dev")
-    sample_node = TextNode("looking for * chars in my text to make this work", TextType.TEXT)
-    print(sample_node.text.find('*'))
-    print(sample_node.text[12])
-    print(sample_node.text.find('*', 13, len(sample_node.text)))
+    print(split_nodes_link([TextNode("", TextType.CODE)]))
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,5 @@
 import unittest
-from main import split_nodes_delimiter, split_single_node
+from main import split_nodes_delimiter, split_single_node, split_nodes_image, split_nodes_link
 from textnode import TextNode, TextType
 
 class TestSplitNodes(unittest.TestCase):
@@ -50,7 +50,60 @@ class TestSplitNodes(unittest.TestCase):
         node = TextNode("hello this has invalid **markdown", TextType.TEXT)
         with self.assertRaises(Exception):
             split_nodes_delimiter([node], "**", TextType.BOLD)
+
+    #Split Image Tests
+    def test_not_text(self):
+        node = TextNode("", TextType.CODE)
+        result = split_nodes_image([node])
         
+        self.assertEqual(result, [TextNode("", TextType.CODE, None)])
+        
+    def test_multiple_image(self):
+        node = TextNode("image 1 ![alt](url) image 2 ![alt](url) more text", TextType.TEXT)
+        result = split_nodes_image([node])
+
+        self.assertEqual(result, [TextNode("image 1 ", TextType.TEXT),
+                                  TextNode("alt", TextType.IMAGE, "url"),
+                                  TextNode(" image 2 ", TextType.TEXT),
+                                  TextNode("alt", TextType.IMAGE, "url"),
+                                  TextNode(" more text", TextType.TEXT)])
+    def test_multiple_nodes(self):
+        nodes = [TextNode("This node has an ![alt](url) image", TextType.TEXT),
+                 TextNode("This node also has an image ![alt](url)", TextType.TEXT)]
+        result = split_nodes_image(nodes)
+
+        self.assertEqual(result, [TextNode("This node has an ", TextType.TEXT),
+                                  TextNode("alt", TextType.IMAGE, "url"),
+                                  TextNode(" image", TextType.TEXT),
+                                  TextNode("This node also has an image ", TextType.TEXT),
+                                  TextNode("alt", TextType.IMAGE, "url")])
+        
+    #Split Link Tests
+    def test_link_no_text(self):
+        node = TextNode("", TextType.CODE)
+        result = split_nodes_link([node])
+        
+        self.assertEqual(result, [TextNode("", TextType.CODE, None)])
+        
+    def test_multiple_link(self):
+        node = TextNode("link 1 [alt](url) link 2 [alt](url) more text", TextType.TEXT)
+        result = split_nodes_link([node])
+
+        self.assertEqual(result, [TextNode("link 1 ", TextType.TEXT),
+                                  TextNode("alt", TextType.LINK, "url"),
+                                  TextNode(" link 2 ", TextType.TEXT),
+                                  TextNode("alt", TextType.LINK, "url"),
+                                  TextNode(" more text", TextType.TEXT)])
+    def test_multiple_link_nodes(self):
+        nodes = [TextNode("This node has a [alt](url) link", TextType.TEXT),
+                 TextNode("This node also has a link [alt](url)", TextType.TEXT)]
+        result = split_nodes_link(nodes)
+
+        self.assertEqual(result, [TextNode("This node has a ", TextType.TEXT),
+                                  TextNode("alt", TextType.LINK, "url"),
+                                  TextNode(" link", TextType.TEXT),
+                                  TextNode("This node also has a link ", TextType.TEXT),
+                                  TextNode("alt", TextType.LINK, "url")])
 
 
 if __name__ == "__main__":
