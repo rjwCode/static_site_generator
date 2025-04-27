@@ -1,5 +1,5 @@
 import unittest
-from main import split_nodes_delimiter, split_single_node, split_nodes_image, split_nodes_link
+from main import split_nodes_delimiter, split_single_node, split_nodes_image, split_nodes_link, text_to_textnodes
 from textnode import TextNode, TextType
 
 class TestSplitNodes(unittest.TestCase):
@@ -105,6 +105,57 @@ class TestSplitNodes(unittest.TestCase):
                                   TextNode("This node also has a link ", TextType.TEXT),
                                   TextNode("alt", TextType.LINK, "url")])
 
+    #text_to_textnodes Tests
+    def test_just_text(self):
+        text = "just some text"
+        result = text_to_textnodes(text)
+
+        self.assertEqual(result, [TextNode("just some text", TextType.TEXT)])
+
+    def test_just_delimiters(self):
+        text = "here is some **bold text**, a `code block`, and some _italicized text_ all in one line"
+        result = text_to_textnodes(text)
+
+        self.assertEqual(result, [TextNode("here is some ", TextType.TEXT),
+                                  TextNode("bold text", TextType.BOLD),
+                                  TextNode(", a ", TextType.TEXT),
+                                  TextNode("code block", TextType.CODE),
+                                  TextNode(", and some ", TextType.TEXT),
+                                  TextNode("italicized text", TextType.ITALIC),
+                                  TextNode(" all in one line", TextType.TEXT)])
+    
+    def test_just_images_links(self):
+        text = "and some images ![alt_](url_) ![alt2](url2), and links [alt_l1](url_l1) [alt_l2](url_l2)"
+        result = text_to_textnodes(text)
+
+        self.assertEqual(result, [TextNode("and some images ", TextType.TEXT),
+                                  TextNode("alt_", TextType.IMAGE, "url_"),
+                                  TextNode(" ", TextType.TEXT),
+                                  TextNode("alt2", TextType.IMAGE, "url2"),
+                                  TextNode(", and links ", TextType.TEXT),
+                                  TextNode("alt_l1", TextType.LINK, "url_l1"),
+                                  TextNode(" ", TextType.TEXT),
+                                  TextNode("alt_l2", TextType.LINK, "url_l2")])
+        
+    def test_all(self):
+        text = "here is some **bold text**, a `code block`, and some _italicized text_ all in one line " \
+        "and some images ![alt_](url_) ![alt2](url2), and links [alt_l1](url_l1) [alt_l2](url_l2)"
+        result = text_to_textnodes(text)
+
+        self.assertEqual(result, [TextNode("here is some ", TextType.TEXT),
+                                  TextNode("bold text", TextType.BOLD),
+                                  TextNode(", a ", TextType.TEXT),
+                                  TextNode("code block", TextType.CODE),
+                                  TextNode(", and some ", TextType.TEXT),
+                                  TextNode("italicized text", TextType.ITALIC),
+                                  TextNode(" all in one line and some images ", TextType.TEXT),
+                                  TextNode("alt_", TextType.IMAGE, "url_"),
+                                  TextNode(" ", TextType.TEXT),
+                                  TextNode("alt2", TextType.IMAGE, "url2"),
+                                  TextNode(", and links ", TextType.TEXT),
+                                  TextNode("alt_l1", TextType.LINK, "url_l1"),
+                                  TextNode(" ", TextType.TEXT),
+                                  TextNode("alt_l2", TextType.LINK, "url_l2")])
 
 if __name__ == "__main__":
     unittest.main()
