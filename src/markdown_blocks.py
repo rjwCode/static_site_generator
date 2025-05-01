@@ -10,46 +10,51 @@ class BlockType(Enum):
     ORDERED_LIST = "ordered list"
 
 def block_to_block_type(md_block):
-    is_heading = is_code = is_quote = is_unordered_list = is_paragraph = False
-    is_ordered_list = True
+    if md_block == None or md_block == "":
+        raise ValueError("markdown block should not be blank")
 
-    headings = re.findall(r"#{1,6}\s{1}.*", md_block, re.M)
-    code_blocks = re.findall(r"^```\n?.*\n?```$", md_block, re.M | re.DOTALL)
-    quote_blocks = re.findall(r"^>", md_block, re.M | re.DOTALL)
-    unordered_list_elements = re.findall(r"^-\s[\w(\w )]*", md_block, re.M | re.DOTALL)
-    possibly_ordered_list = re.findall(r"^\d\.\s.*\n?", md_block, re.M | re.DOTALL)
+    is_heading = is_code = is_paragraph = False
+    is_ordered_list = is_quote = is_unordered_list = True
 
-    if len(code_blocks) > 0:
-        is_code = True
-        return BlockType.CODE
-    if len(headings) > 0:
+    lines = md_block.split("\n")
+
+    first_line = lines[0]
+    last_line = lines[-1]
+    if re.match(r"^#{1,6} ", first_line):
         is_heading = True
+    
+    if first_line.startswith('```') and last_line == '```' and len(lines) >= 3:
+        is_code = True
+
+    for line in lines:
+        if not line.startswith(">"):
+            is_quote = False
+            break
+
+    for line in lines:
+        if not line.startswith("- "):
+            is_unordered_list = False
+            break
+
+    if is_code:
+        return BlockType.CODE
+    if is_heading:
         return BlockType.HEADING
-    if len(quote_blocks) > 0:
-        is_quote = True
+    if is_quote:
         return BlockType.QUOTE
-    if len(unordered_list_elements) > 0:
-        is_unordered_list = True
+    if is_unordered_list:
         return BlockType.UNORDERED_LIST
     
-    list_index_to_match = 1
-    for item in possibly_ordered_list:
-        list_index = re.findall(r"^\d+", item)[0]
-        if list_index != str(list_index_to_match):
+    for i, line in enumerate(lines, 1):
+        if not line.startswith(f"{i}. "):
             is_ordered_list = False
             break
-        list_index_to_match += 1
 
     if is_ordered_list:
         return BlockType.ORDERED_LIST
-    if not is_heading and not is_code and not is_quote and not is_unordered_list and not is_ordered_list:
-        is_paragraph = True
-        if is_paragraph:
-            return BlockType.PARAGRAPH
 
+    return BlockType.PARAGRAPH
 
-test = "hello"
-print(test[0])
 
 def markdown_to_blocks(markdown):
     if markdown == None or markdown == "":

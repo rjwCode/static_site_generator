@@ -1,5 +1,5 @@
 import unittest
-from markdown_blocks import markdown_to_blocks
+from markdown_blocks import markdown_to_blocks, block_to_block_type, BlockType
 
 class TestMarkdownBlocks(unittest.TestCase):
     def testBasicMarkdown(self):
@@ -55,5 +55,60 @@ class TestMarkdownBlocks(unittest.TestCase):
                 "Lots of whitespace here <--->"
             ]
         )
+
+class TestMDBlockType(unittest.TestCase):
+    def testEmptyBlock(self):
+        block = ""
+        with self.assertRaises(ValueError):
+            block_to_block_type(block)
+
+    def testCodeBlock(self):
+        block = "```\nthis is a code block\n```"
+        result = block_to_block_type(block)
+        
+        self.assertEqual(result, BlockType.CODE)
+
+    def testEmptyCodeBlock(self):
+        block = "```\n\n\n```"
+        result = block_to_block_type(block)
+
+        self.assertEqual(result, BlockType.CODE)
+
+    def testQuoteBlock(self):
+        block = ">\n>"
+        result = block_to_block_type(block)
+
+        self.assertEqual(result, BlockType.QUOTE)
+
+    def testHeadingBlock(self):
+        block = "### heading text"
+        result = block_to_block_type(block)
+
+        self.assertEqual(result, BlockType.HEADING)
+
+    def testUnorderedList(self):
+        block = "- item 1\n- item 2"
+        result = block_to_block_type(block)
+
+        self.assertEqual(result, BlockType.UNORDERED_LIST)
+    
+    def testOrderedList(self):
+        block = "1. item 1\n2. item 2"
+        result = block_to_block_type(block)
+
+        self.assertEqual(result, BlockType.ORDERED_LIST)
+    
+    def testIncorrectOrderedList(self):
+        block = "2. item 1\n1. item 2"
+        result = block_to_block_type(block)
+
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
+    def testParagraph(self):
+        block = "This is a paragraph"
+        result = block_to_block_type(block)
+
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
 if __name__ == "__main__":
     unittest.main()
