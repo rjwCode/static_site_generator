@@ -1,5 +1,5 @@
 import unittest
-from markdown_blocks import markdown_to_blocks, block_to_block_type, markdown_to_html_node, BlockType
+from markdown_blocks import markdown_to_blocks, extract_title, block_to_block_type, markdown_to_html_node, BlockType
 from htmlnode import HTMLNode
 
 class TestMarkdownBlocks(unittest.TestCase):
@@ -234,7 +234,33 @@ class TestMarkDownToHTML(unittest.TestCase):
             html,
             "<div><h1>Heading</h1><p>Paragraph with <b>bold</b> text.</p><ul><li>List item 1</li><li>List item 2</li></ul><blockquote><p>A blockquote</p></blockquote></div>"
         )
-        
+
+class TestExtractTitle(unittest.TestCase):
+    def testEmptyMarkdown(self):
+        markdown = ""
+        with self.assertRaises(ValueError):
+            extract_title(markdown)
+
+    def testNoH1Header(self):
+        markdown = """
+    ## This markdown has no H1 header
+
+    So it _should_ raise a value error
+
+    """
+        with self.assertRaises(ValueError):
+            extract_title(markdown)
+
+    def testProperMarkdown(self):
+        markdown = """
+    # This is an h1 header
+
+    Here is some extra text
+    """
+        result = extract_title(markdown)
+
+        self.assertEqual(result,
+                         "This is an h1 header")
 
 
 if __name__ == "__main__":

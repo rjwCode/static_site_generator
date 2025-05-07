@@ -25,12 +25,22 @@ class LeafNode(HTMLNode):
         super().__init__(tag, value, None, props)
     
     def to_html(self):
-        if self.value == None or self.value == "":
-            raise ValueError("no value set")
-        elif self.tag == None or self.tag == "":
-            return f"{self.value}"
+        #handle cases with tags that can have no value
+        if self.tag == "img": 
+            #if the image has no source, or no properties at all, raise a value error
+            if len(self.props) == 0 or self.props == None or "src" not in self.props:
+                raise ValueError("HTML image has no src attribute, or has no attributes at all")
+            attributes = " ".join(
+                    f'{key}="{value}"' for key, value in self.props.items()
+            )
+            return f"<img {attributes}>"
         else:
-            return f"<{self.tag}>{self.value}</{self.tag}>"
+            if self.value == None or self.value == "":
+                raise ValueError("no value set")
+            elif self.tag == None or self.tag == "":
+                return f"{self.value}"
+            else:
+                return f"<{self.tag}>{self.value}</{self.tag}>"
         
 class ParentNode(HTMLNode):
     def __init__(self, tag, children, props=None):

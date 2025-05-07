@@ -1,8 +1,8 @@
 from enum import Enum
 from htmlnode import HTMLNode, ParentNode, LeafNode
-from textnode import TextNode, TextType
-from main import text_node_to_html_node, text_to_textnodes
+from textnode import TextNode, TextType, text_node_to_html_node, text_to_textnodes
 import re
+from os import path, makedirs
 
 class BlockType(Enum):
     PARAGRAPH = "paragraph"
@@ -110,7 +110,6 @@ def markdown_to_html_node(markdown):
     for block in blocks:
         #get the block type
         type = block_to_block_type(block)
-        print(f"Block: {block!r}, Type: {type}")
 
         if type == BlockType.PARAGRAPH:
             #create paragraph html node
@@ -260,24 +259,18 @@ def markdown_to_html_node(markdown):
             #add the ul node as a child of the overall parent node
             children.append(ol_node)
 
-    if len(children) == 0:
-        print("CHILDREN IS EMPTY FOR SOME REASON")
     parent_html_node.children = children
     return parent_html_node
 
 def text_to_children(text):
-    print(f"Processing text: {text!r}")
     text_nodes = text_to_textnodes(text)
-    print(f"Resulting text_nodes: {text_nodes}")
     html_nodes = []
 
     #iterate over text_nodes and convert them to html_nodes
     for text_node in text_nodes:
         html_node = text_node_to_html_node(text_node)
-        print(f"Converted text_node to html_node: {html_node}")
         html_nodes.append(html_node)
     
-    print(f"Final html_nodes: {html_nodes}")
     return html_nodes
 
 def determine_heading_level(block):
@@ -293,3 +286,63 @@ def determine_heading_level(block):
     level = max(1, min(level, 6))
 
     return level
+
+
+#function to extract the h1 header from the given markdown file
+def extract_title(markdown):
+
+    #raise value error if markdown is empty or nonexistent 
+    if markdown == "" or markdown == None:
+        raise ValueError("No (or empty) markdown provided")
+    
+    #split markdown on newlines
+    lines = markdown.split("\n")
+
+    #iterate over lines
+    for line in lines:
+        #if the line matches the pattern for an h1 header, return it (with leading whitespace, trailing whitespace,
+        #and '#' characters stripped)
+        match = re.match(r"# (.*)", line.strip())
+        if match:
+            return match.group(1).strip()
+    
+    #if no h1 header is present in the given markdown, raise a value error
+    raise ValueError("There is no h1 header in the provided markdown")
+
+#function to convert markdown to html, and write it to a .html file
+def generate_page(from_path, template_path, dest_path):
+    #print log to user that the page is being generated
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}...")
+
+    #reading the markdown file (at from_path)
+    with open(from_path, 'r') as markdown_file:
+        markdown = markdown_file.read()
+
+    #reading the template file (template_path)
+    with open(template_path, 'r') as template_file:
+        template = template_file.read()
+    
+    #use markdown_to_html_node() to convert to an html node
+    md_html_node = markdown_to_html_node(markdown)
+    print(md_html_node)
+
+    #use the class method to_html() to convert the node to an html string
+    md_html_string = md_html_node.to_html()
+
+    #use extract_title() to get the title from the markdown
+    title = extract_title(markdown)
+
+    #replace the title section of the template with the actual title
+    generated_html = template.replace("{{ Title }}", title)
+
+    #replace the content section of the template with the actual html content
+    generated_html = generated_html.replace("{{ Content }}", md_html_string)
+
+    #create the destination dir if it doesn't exist
+    makedirs(path.dirname(dest_path), exist_ok=True)
+
+    with open(dest_path, "w") as html_file:
+        html_file.write(generated_html)
+
+
+
