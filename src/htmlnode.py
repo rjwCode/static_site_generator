@@ -25,8 +25,11 @@ class LeafNode(HTMLNode):
         super().__init__(tag, value, None, props)
     
     def to_html(self):
+        #create a list of void html elements
+        VOID_ELEMENTS = {"br", "hr", "img", "input", "meta", "link", "area", "base", "col", "embed", "source", "track", "wbr"}
+
         #handle cases with tags that can have no value
-        if self.tag == "img": 
+        if self.tag == "img" : 
             #if the image has no source, or no properties at all, raise a value error
             if len(self.props) == 0 or self.props == None or "src" not in self.props:
                 raise ValueError("HTML image has no src attribute, or has no attributes at all")
@@ -34,6 +37,21 @@ class LeafNode(HTMLNode):
                     f'{key}="{value}"' for key, value in self.props.items()
             )
             return f"<img {attributes}>"
+        elif self.tag == "a":
+            #if the 'a' tag has no source, or no properties at all, raise a value error
+            if len(self.props) == 0 or self.props == None or "href" not in self.props:
+                raise ValueError("'a' tag has no href attribute, or has no attributes at all")
+            attributes = " ".join(
+                    f'{key}="{value}"' for key, value in self.props.items()
+            )
+            if attributes:
+                attributes = " " + attributes
+
+            return f"<a{attributes}>{self.value}</a>"
+        elif self.tag in VOID_ELEMENTS:
+            #create a string of all attributes for the tag
+            attributes = " ".join(f'{key}="{value}"' for key, value in self.props.items())
+            return f"<{self.tag}{attributes}>" 
         else:
             if self.value == None or self.value == "":
                 raise ValueError("no value set")

@@ -156,42 +156,21 @@ def markdown_to_html_node(markdown):
             children.append(pre_node)
 
         elif type == BlockType.QUOTE:
-            #create the blockquote node
-            quote_node = ParentNode("blockquote", [])
-
-            cleaned_lines = []
-
-            #strip '>' characters from each line
+            #split the block on newlines to get all lines
             lines = block.split("\n")
-            current_paragraph = []
-            paragraphs = []
-
+            quote_lines = []
             for line in lines:
                 if line.startswith(">"):
-                    clean_line = line[1:].lstrip()
-                    if clean_line == "":
-                        if current_paragraph:
-                            paragraphs.append(" ".join(current_paragraph))
-                            current_paragraph = []
-                    else:
-                        current_paragraph.append(clean_line)
-                else:
-                    #if the line doesn't have ">"
-                    clean_line = line.strip()
-                    if clean_line:
-                        current_paragraph.append(clean_line)
-            
-            if current_paragraph:
-                paragraphs.append(" ".join(current_paragraph))
+                    #if line starts with the blockquote character, remove that character and whitespace
+                    cleaned_line = line[1:].strip()
+                    if cleaned_line:
+                        quote_lines.append(cleaned_line)
 
-            #creating paragraph nodes for each section of paragraph text within the blockquote
-            #and adding them as children to the quote node
-            for paragraph_text in paragraphs:
-                paragraph_node = ParentNode("p", None)
-                paragraph_node.children = text_to_children(paragraph_text)
-                quote_node.children.append(paragraph_node)
+            #join all lines, with spaces
+            quote_content = " ".join(quote_lines)
 
             #adding the quote node as a child of the outer parent div node
+            quote_node = LeafNode("blockquote", quote_content)
             children.append(quote_node)
 
         elif type == BlockType.UNORDERED_LIST:
@@ -324,10 +303,16 @@ def generate_page(from_path, template_path, dest_path):
     
     #use markdown_to_html_node() to convert to an html node
     md_html_node = markdown_to_html_node(markdown)
-    print(md_html_node)
 
-    #use the class method to_html() to convert the node to an html string
-    md_html_string = md_html_node.to_html()
+    full_html = md_html_node.to_html()
+
+    #create a list of the child nodes, to cut out the outer <div>
+    match = re.match(r"<div>(.*)</div>$", full_html, re.DOTALL)
+    if match:
+        content_html = match.group(1)
+    else:
+        content_html = full_html
+
 
     #use extract_title() to get the title from the markdown
     title = extract_title(markdown)
@@ -336,7 +321,7 @@ def generate_page(from_path, template_path, dest_path):
     generated_html = template.replace("{{ Title }}", title)
 
     #replace the content section of the template with the actual html content
-    generated_html = generated_html.replace("{{ Content }}", md_html_string)
+    generated_html = generated_html.replace("{{ Content }}", content_html)
 
     #create the destination dir if it doesn't exist
     makedirs(path.dirname(dest_path), exist_ok=True)
