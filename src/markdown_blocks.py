@@ -2,7 +2,7 @@ from enum import Enum
 from htmlnode import HTMLNode, ParentNode, LeafNode
 from textnode import TextNode, TextType, text_node_to_html_node, text_to_textnodes
 import re
-from os import path, makedirs
+from os import path, makedirs, listdir
 
 class BlockType(Enum):
     PARAGRAPH = "paragraph"
@@ -328,6 +328,48 @@ def generate_page(from_path, template_path, dest_path):
 
     with open(dest_path, "w") as html_file:
         html_file.write(generated_html)
+
+#function to create an html file for each markdown file in the content directory
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    print(f"Processing dir: {dir_path_content}")
+
+
+    #create a list of directory entries
+    entries = listdir(dir_path_content)
+
+    #iterate over entries
+    for entry in entries:
+        #if entry is a file, check for a .md extension
+        entry_path = path.join(dir_path_content, entry)
+
+        print(f"examining entry: {entry_path}")
+        if path.isfile(entry_path):
+            #if it's a markdown file, create an html file with it
+            if entry_path.endswith('.md'):
+
+                #get relative path from the original dir
+                rel_path = path.relpath(entry_path, dir_path_content)
+                print(f"Found markdown file: {rel_path}")
+
+                #make the extension .html for the destination
+                dest_file = path.splitext(entry)[0] + '.html'
+
+                #create the full path for the destination
+                dest_path = path.join(dest_dir_path, dest_file)
+
+                print(f"will generate to {dest_path}")
+
+                #use the generate_page() function to make an html page for the markdown file
+                generate_page(entry_path, template_path, dest_path)
+        elif path.isdir(entry_path):
+            nested_dest_dir = path.join(dest_dir_path, entry)
+            print(f"Recursing into directory: {entry_path} -> {nested_dest_dir}")
+
+            #ensure destination dir exists
+            makedirs(nested_dest_dir, exist_ok=True)
+
+            #recursive call until a .md file is found
+            generate_pages_recursive(entry_path, template_path, nested_dest_dir)
 
 
 

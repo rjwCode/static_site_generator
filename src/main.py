@@ -3,7 +3,7 @@ from htmlnode import HTMLNode, LeafNode, ParentNode
 import re
 from os import path, listdir, mkdir
 from shutil import copy, rmtree
-from markdown_blocks import generate_page
+from markdown_blocks import generate_pages_recursive, generate_page
 
 def copy_static_to_public(source, destination):
     #check that the path exists, and clear it
@@ -34,7 +34,8 @@ def copy_static_to_public(source, destination):
 
 def main():
     copy_static_to_public("static", "public")
-    generate_page("content/index.md", "template.html", "public/index.html")
+    #generate_page("content/blog/majesty/index.md", "template.html", "public/blog/majesty/index.html")
+    generate_pages_recursive("content", "template.html", "public")
 
 
 if __name__ == "__main__":

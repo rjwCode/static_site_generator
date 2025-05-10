@@ -60,7 +60,9 @@ def split_single_node(text, delimiter, text_type):
         return [TextNode(text, TextType.TEXT)] if text else []
     end_delimiter = text.find(delimiter, start_delimiter + len(delimiter))
     if end_delimiter == -1:
-        raise Exception("Invalid markdown format, closing delimiter missing")
+        result.append(TextNode(text[:start_delimiter + len(delimiter)], TextType.TEXT))
+        result.extend(split_single_node(text[start_delimiter + len(delimiter):], delimiter, text_type))
+        return result
     if start_delimiter > 0:
         result.append(TextNode(text[:start_delimiter], TextType.TEXT))
     result.append(TextNode(text[start_delimiter + len(delimiter):end_delimiter], text_type))
