@@ -1,3 +1,4 @@
+import sys
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
 import re
@@ -33,9 +34,15 @@ def copy_static_to_public(source, destination):
 
 
 def main():
-    copy_static_to_public("static", "public")
-    #generate_page("content/blog/majesty/index.md", "template.html", "public/blog/majesty/index.html")
-    generate_pages_recursive("content", "template.html", "public")
+    copy_static_to_public("static", "docs")
+
+    #set first argument to be the root path of the generated site, if provided
+    if len(sys.argv) > 1:
+        base_path = sys.argv[1]
+    else:
+        base_path = '/'
+
+    generate_pages_recursive("content", "template.html", "docs", base_path)
 
 
 if __name__ == "__main__":

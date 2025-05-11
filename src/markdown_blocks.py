@@ -289,7 +289,7 @@ def extract_title(markdown):
     raise ValueError("There is no h1 header in the provided markdown")
 
 #function to convert markdown to html, and write it to a .html file
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, base_path):
     #print log to user that the page is being generated
     print(f"Generating page from {from_path} to {dest_path} using {template_path}...")
 
@@ -323,6 +323,12 @@ def generate_page(from_path, template_path, dest_path):
     #replace the content section of the template with the actual html content
     generated_html = generated_html.replace("{{ Content }}", content_html)
 
+    #replace any instance of href="/ with href="{from_path}
+    generated_html = generated_html.replace('href="/', f'href="{base_path}')
+
+    #replace any instance of src="/ with src="{from_path}
+    generated_html = generated_html.replace('src="/', f'src="{base_path}')
+
     #create the destination dir if it doesn't exist
     makedirs(path.dirname(dest_path), exist_ok=True)
 
@@ -330,7 +336,7 @@ def generate_page(from_path, template_path, dest_path):
         html_file.write(generated_html)
 
 #function to create an html file for each markdown file in the content directory
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, base_path):
     print(f"Processing dir: {dir_path_content}")
 
 
@@ -360,7 +366,7 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
                 print(f"will generate to {dest_path}")
 
                 #use the generate_page() function to make an html page for the markdown file
-                generate_page(entry_path, template_path, dest_path)
+                generate_page(entry_path, template_path, dest_path, base_path)
         elif path.isdir(entry_path):
             nested_dest_dir = path.join(dest_dir_path, entry)
             print(f"Recursing into directory: {entry_path} -> {nested_dest_dir}")
@@ -369,7 +375,7 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
             makedirs(nested_dest_dir, exist_ok=True)
 
             #recursive call until a .md file is found
-            generate_pages_recursive(entry_path, template_path, nested_dest_dir)
+            generate_pages_recursive(entry_path, template_path, nested_dest_dir, base_path)
 
 
 
