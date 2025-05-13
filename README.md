@@ -35,17 +35,57 @@ You can then visit your generated site at:
 
 ```
 static_site_generator/
-├── src/
-│   ├── main.py                   # Entry point for site generation
-│   ├── markdown_blocks.py        # Markdown parsing & HTML logic
-│   ├── htmlnode.py               # HTML tree system (LeafNode, ParentNode)
-│   ├── textnode.py               # Inline markdown parsing
-├── content/                      # Input .md files (nested allowed)
-├── docs/                         # Output .html files (auto-generated)
-├── static/                       # index.css, images, etc.
-├── template.html                 # HTML skeleton with placeholders
-├── .gitignore                    # Avoids __pycache__ tracking
-└── main.sh / build.sh            # CLI scripts
+├── build.sh                   # Script to build with base path (e.g., for GitHub Pages)
+├── main.sh                    # Script to generate site and launch dev server
+├── template.html              # Base HTML layout with {{ Title }} and {{ Content }}
+├── test.sh                    # (Optional) test runner script
+│
+├── content/                   # Input markdown files (mirrored to docs/)
+│   ├── index.md
+│   ├── contact/
+│   │   └── index.md
+│   └── blog/
+│       ├── glorfindel/
+│       │   └── index.md
+│       ├── majesty/
+│       │   └── index.md
+│       └── tom/
+│           └── index.md
+│
+├── docs/                      # Output folder (auto-generated)
+│   ├── index.html
+│   ├── index.css
+│   ├── contact/index.html
+│   └── blog/
+│       ├── glorfindel/index.html
+│       ├── majesty/index.html
+│       └── tom/index.html
+│   └── images/
+│       ├── glorfindel.png
+│       ├── rivendell.png
+│       ├── tolkien.png
+│       └── tom.png
+│
+├── static/                    # Assets to copy into docs/
+│   ├── index.css
+│   └── images/
+│       ├── glorfindel.png
+│       ├── rivendell.png
+│       ├── tolkien.png
+│       └── tom.png
+│
+├── src/                       # Source code and test modules
+│   ├── main.py
+│   ├── htmlnode.py
+│   ├── markdown_blocks.py
+│   ├── textnode.py
+│   ├── test_convert.py
+│   ├── test_extract_markdown.py
+│   ├── test_htmlnode.py
+│   ├── test_markdown_blocks.py
+│   ├── test_split_nodes.py
+│   ├── test_textnode.py
+│   └── __pycache__/
 ```
 
 ---
