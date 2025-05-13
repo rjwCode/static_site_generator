@@ -25,7 +25,7 @@ This is a fully functional static site generator built in Python. It recursively
 3. Ensure these folders/files exist:
    - `content/` — contains your Markdown files
    - `static/` — contains images and `index.css`
-   - `template.html` — your base HTML template
+   - `template.html` — your base HTML template, which can be copied from this repo
 
 ---
 
