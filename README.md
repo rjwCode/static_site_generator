@@ -45,7 +45,7 @@ static_site_generator/
 ├── static/                       # index.css, images, etc.
 ├── template.html                 # HTML skeleton with placeholders
 ├── .gitignore                    # Avoids __pycache__ tracking
-├── main.sh / build.sh            # CLI scripts
+└── main.sh / build.sh            # CLI scripts
 ```
 
 ---
