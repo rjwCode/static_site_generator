@@ -46,7 +46,6 @@ static_site_generator/
 ├── template.html                 # HTML skeleton with placeholders
 ├── .gitignore                    # Avoids __pycache__ tracking
 ├── main.sh / build.sh            # CLI scripts
-└── tests/                        # Unit test files (all key modules)
 ```
 
 ---
