@@ -40,7 +40,7 @@ static_site_generator/
 ├── template.html              # Base HTML layout with {{ Title }} and {{ Content }}
 ├── test.sh                    # (Optional) test runner script
 │
-├── content/                   # Input markdown files (mirrored to docs/)
+├── content/                   # Input markdown files (converted to HTML and placed in docs/)
 │   ├── index.md
 │   ├── contact/
 │   │   └── index.md
@@ -84,8 +84,7 @@ static_site_generator/
 │   ├── test_htmlnode.py
 │   ├── test_markdown_blocks.py
 │   ├── test_split_nodes.py
-│   ├── test_textnode.py
-│   └── __pycache__/
+│   └── test_textnode.py
 ```
 
 ---
