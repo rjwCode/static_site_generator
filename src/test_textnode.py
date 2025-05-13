@@ -15,25 +15,25 @@ class TestTextNode(unittest.TestCase):
 
         self.assertNotEqual(node, node2)
     
-    def test_eq2(self):
+    def test_eq3(self):
         node = TextNode("entry1", TextType.BOLD, "https://test.com")
         node2 = TextNode("entry1", TextType.CODE, "https://test.com")
 
         self.assertNotEqual(node, node2)
 
-    def test_eq2(self):
+    def test_eq4(self):
         node = TextNode("entry1", TextType.IMAGE, "http://test.com")
         node2 = TextNode("entry1", TextType.IMAGE, "https://test.com")
 
         self.assertNotEqual(node, node2)
 
-    def test_eq2(self):
+    def test_eq5(self):
         node = TextNode("entry1", TextType.IMAGE, "https://test.com")
         node2 = TextNode("entry1", TextType.IMAGE)
 
         self.assertNotEqual(node, node2)
 
-    def test_eq2(self):
+    def test_eq6(self):
         node = TextNode("entry1", TextType.IMAGE, "https://test.com")
         node2 = TextNode("entry1", TextType.IMAGE, "https://test.com")
 
