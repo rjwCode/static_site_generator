@@ -19,6 +19,16 @@ This is a fully functional static site generator built in Python. It recursively
 
 ## 🚀 How to Run
 
+### 🛠️ Setup
+1. Make sure you have **Python 3** installed
+2. Clone this repository and navigate to the root folder
+3. Ensure these folders/files exist:
+   - `content/` — contains your Markdown files
+   - `static/` — contains images and `index.css`
+   - `template.html` — your base HTML template
+
+---
+
 ```bash
 # Generate the site and start a local server
 ./main.sh
